@@ -44,15 +44,8 @@ func (l *Listener) Handle(ctx context.Context, channel string, handler Handler) 
 
 	_, ok := l.handlers[channel]
 	l.handlers[channel] = handler
-	if l.hasStarted {
-		var err error
-		if ok {
-			// We are changing handlers, don't need to read backlog
-			// TODO: Maybe just error in this case?
-			_, err = l.conn.Exec(ctx, "listen "+pgx.Identifier{channel}.Sanitize())
-		} else {
-			err = l.listenandbacklog(ctx, channel, handler)
-		}
+	if l.hasStarted && !ok {
+		err := l.listenandbacklog(ctx, channel, handler)
 		return err
 	}
 	return nil
