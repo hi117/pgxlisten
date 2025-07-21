@@ -39,6 +39,19 @@ func (l *Listener) Handle(channel string, handler Handler) {
 	l.handlers[channel] = handler
 }
 
+// Unhandle removes the handler for notifications sent to channel.
+func (l *Listener) Unhandle(channel string) bool {
+	if l.handlers == nil {
+		return false
+	}
+	_, ok := l.handlers[channel]
+	if !ok {
+		return false
+	}
+	delete(l.handlers, channel)
+	return true
+}
+
 // Listen listens for and handles notifications. It will only return when ctx is cancelled or a fatal error occurs.
 // Because Listen is intended to continue running even when there is a network or database outage most errors are not
 // considered fatal. For example, if connecting to the database fails it will wait a while and try to reconnect.
